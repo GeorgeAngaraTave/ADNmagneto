@@ -1,0 +1,18 @@
+runtime: python37
+#service: development
+entrypoint: gunicorn -b :$PORT main:flask_app
+# service: default
+
+
+handlers:
+- url: /.*
+  script: auto
+
+env_variables:
+  # Storage ENV
+  DEFAULT_BUCKET: "magneto-dot-invertible-eye-316323.uc.r.appspot.com"
+  PUBLIC_URI: 'https://storage.googleapis.com'
+  ENVIRONMENT: "TEST"
+
+resources:
+  memory_gb: 4

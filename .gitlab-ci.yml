@@ -1,0 +1,80 @@
+stages:
+- clean
+- service_account
+- gae_deploy
+
+variables:
+  GLOBAL_GITLAB_CI_GCP_AUTH: "/home/gitlab-runner/.config/gcloud"
+
+clean_project:
+  stage: clean
+  allow_failure: true
+  script:
+  - unset GOOGLE_APPLICATION_CREDENTIALS
+  - rm -rf $"GLOBAL_GITLAB_CI_GCP_AUTH"
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+  tags:
+  - backendbase
+
+service_account:
+  stage: service_account
+  script:
+  - echo "$GBACKENDACCOUNTURI1" > "$(pwd)/$BUILD_URI_FILE_PATH"
+  - gcloud auth activate-service-account "$BUILD_URI_NAME" --key-file="$(pwd)/$BUILD_URI_FILE_PATH" --project="$BUILD_URI_PROJECT"
+  only:
+  - py3
+  except:
+  - merge_requests
+  tags:
+  - backendbase
+
+gae_deploy:
+  stage: gae_deploy
+  script:
+  - gcloud builds submit . --config=cloudbuild.yaml
+  only:
+  - py3
+  except:
+  - merge_requests
+  tags:
+  - backendbase
+
+jobSuccess:
+   stage: gae_deploy
+   allow_failure: true
+   script:
+    - echo "Running on successful running of the job."
+    - unset GOOGLE_APPLICATION_CREDENTIALS
+    - rm -rf $"GLOBAL_GITLAB_CI_GCP_AUTH"
+    # - rm "$(pwd)/$BUILD_URI_FILE_PATH"
+   when: on_success
+   tags:
+   - backendbase
+
+jobFailure:
+   stage: gae_deploy
+   allow_failure: true
+   script:
+      - echo "Running on failure of the job."
+      - unset GOOGLE_APPLICATION_CREDENTIALS
+      - rm -rf $"GLOBAL_GITLAB_CI_GCP_AUTH"
+      # - rm "$(pwd)/$BUILD_URI_FILE_PATH"
+   when: on_failure
+   tags:
+   - backendbase
+
+jobAlways:
+   stage: gae_deploy
+   allow_failure: true
+   script:
+      - echo "Running always job."
+      - unset GOOGLE_APPLICATION_CREDENTIALS
+      - rm -rf $"GLOBAL_GITLAB_CI_GCP_AUTH"
+      # - rm "$(pwd)/$BUILD_URI_FILE_PATH"
+   when: always
+   tags:
+   - backendbase

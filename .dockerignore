@@ -1,0 +1,27 @@
+.git/
+node_modules/
+build/
+idea/
+env2local/
+env/
+venv/
+dist/
+test/
+
+*.py[cod]
+*.egg-info
+*.egg/
+*.swp
+.tox
+.coverage
+*~
+html/*
+__pycache__
+
+# project specific files
+package-lock.json
+.env.development.local
+*.sublime-project
+
+# Compiled Documentation
+docs/_build
